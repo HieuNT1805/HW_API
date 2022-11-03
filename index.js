@@ -1,20 +1,28 @@
-const express = require("express");
+require('dotenv').config();
+const cors = require('cors');
+const express = require('express');
+const mongoose = require('mongoose');
+const mongoString = process.env.DATABASE_URL;
 
+mongoose.connect(mongoString);
+const database = mongoose.connection;
+
+database.on('error', (error) => {
+    console.log(error)
+})
+
+database.once('connected', () => {
+    console.log('Database Connected');
+})
 const app = express();
+app.use(cors())
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
-    res.json({ message: "Rest API." });
-  });
+const routes = require('./routes/routes');
 
-app.get("/name", (req, res) => {
-    res.json({ name: "Nguyen Trung Hieu." });
-  });
-
-
+app.use('/api', routes)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}.`);
-  });
+  console.warn(`App listening on http://localhost:${PORT}`);
+});
